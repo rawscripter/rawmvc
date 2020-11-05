@@ -3,16 +3,19 @@
 /**
  * the user class
  */
-class Objects {
+class Objects
+{
 	protected $pdo;
 
 	// construct $pdo
-	function __construct($pdo) {
+	function __construct($pdo)
+	{
 		$this->pdo = $pdo;
 	}
 
 	// prevent sql injection
-	public function escape($var) {
+	public function escape($var)
+	{
 		$var = trim($var);
 		$var = htmlspecialchars($var);
 		$var = stripcslashes($var);
@@ -20,7 +23,8 @@ class Objects {
 	}
 
 
-	public function create($table, $fields = array()) {
+	public function create($table, $fields = array())
+	{
 		$columns = implode(',', array_keys($fields));
 		$values = ":" . implode(', :', array_keys($fields));
 		$sql = "INSERT INTO {$table}({$columns}) VALUES($values)";
@@ -35,7 +39,8 @@ class Objects {
 		}
 	}
 
-	public function update($table, $colum_name, $id, $fields = array()) {
+	public function update($table, $colum_name, $id, $fields = array())
+	{
 		$columns = '';
 
 		$i = 1;
@@ -55,10 +60,10 @@ class Objects {
 			$stmt->execute();
 			return $stmt->rowCount();
 		}
-
 	} // end of update
 
-	public function delete($table, $array) {
+	public function delete($table, $array)
+	{
 		$sql = "DELETE FROM {$table}";
 		$where = " WHERE ";
 		foreach ($array as $key => $value) {
@@ -75,8 +80,9 @@ class Objects {
 
 
 
-// find all data from table
-	public function all($table) {
+	// find all data from table
+	public function all($table)
+	{
 		$stmt = $this->pdo->prepare("SELECT * FROM " . $table . "");
 		$stmt->execute();
 		return $stmt->fetchAll(PDO::FETCH_OBJ);
@@ -84,7 +90,8 @@ class Objects {
 
 
 	// find a specific data
-	public function find($table,$column,$value) {
+	public function find($table, $column, $value)
+	{
 		$stmt = $this->pdo->prepare("SELECT * FROM " . $table . " WHERE " . $column . " = :value LIMIT 1");
 		$stmt->bindParam(":value", $value);
 		$stmt->execute();
@@ -92,8 +99,19 @@ class Objects {
 	}
 
 
-// Count row form table
-	public function total_count($table) {
+	// find a specific data
+	public function findAll($table, $column, $value)
+	{
+		$stmt = $this->pdo->prepare("SELECT * FROM " . $table . " WHERE " . $column . " = :value");
+		$stmt->bindParam(":value", $value);
+		$stmt->execute();
+		return $stmt->fetchAll(PDO::FETCH_OBJ);
+	}
+
+
+	// Count row form table
+	public function total_count($table)
+	{
 		$stmt = $this->pdo->prepare("SELECT * FROM " . $table . " ");
 		$stmt->execute();
 		$stmt->fetchAll(PDO::FETCH_OBJ);
@@ -101,7 +119,7 @@ class Objects {
 		return $count;
 	}
 
-	public function shortSummery($content,$len)
+	public function shortSummery($content, $len)
 	{
 		$content =  substr($content, 0, $len);
 		return $content .= "....";
@@ -109,7 +127,7 @@ class Objects {
 
 
 
-	public function uploadImage($file,$folderPath)
+	public function uploadImage($file, $folderPath)
 	{
 		$fileName = basename($file['name']);
 		$fileTmp  = $file['tmp_name'];
@@ -119,33 +137,27 @@ class Objects {
 		$ext = explode(".", $fileName);
 		$ext = strtolower(end($ext));
 
-		$allowedExt = array('jpg','png','jpeg');
+		$allowedExt = array('jpg', 'png', 'jpeg');
 
-		if (in_array($ext, $allowedExt) === true)
-		{
-			if ($fileSize <= ( 1024 * 2 ) * 1024)
-			{
+		if (in_array($ext, $allowedExt) === true) {
+			if ($fileSize <= (1024 * 2) * 1024) {
 				$fileRoot = $fileName;
-				move_uploaded_file($fileTmp, $_SERVER["DOCUMENT_ROOT"] . $folderPath. $fileRoot);
+				move_uploaded_file($fileTmp, $_SERVER["DOCUMENT_ROOT"] . $folderPath . $fileRoot);
 				return $fileRoot;
-
-			}else{
+			} else {
 				$GLOBALS['imageError'] = "This file size is too large";
 			}
-		}else{
+		} else {
 			$GLOBALS['imageError'] = "This file type is not allowed";
 		}
 	}
 
 	// display the message
-	public function message(){
+	public function message()
+	{
 		if (isset($_SESSION['message'])) {
 			echo $_SESSION['message'];
 			unset($_SESSION['message']);
 		}
 	}
-
-
 } //end of class
-
-?>
